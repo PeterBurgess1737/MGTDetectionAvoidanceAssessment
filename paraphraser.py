@@ -6,13 +6,6 @@ from typing import Union, Callable
 from MessageTypes import ServerMessageTypes, ParaphraserMessageTypes
 from Logger import Logger
 
-"""
-Uses a TCP socket to communicate with the main handler code.
-Is rather simple, waits for a message from the handler.
-When receiving one, if it contains data, paraphrases it then sends it back.
-If it contains a terminate message, terminate.
-"""
-
 
 @dataclass
 class Message:
@@ -22,7 +15,9 @@ class Message:
     """
 
     type: ServerMessageTypes
+    """The type of the message."""
     data: Union[str, None]
+    """Any data received from the handler."""
 
 
 def connect_to_server(server_address: str = "localhost", server_port: int = 8080) -> socket.socket:
