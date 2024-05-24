@@ -1,7 +1,5 @@
 import socket
 
-from Logger import Logger
-
 
 def connect_to_server(server_address: str = "localhost", server_port: int = 8080) -> socket.socket:
     """
@@ -14,8 +12,6 @@ def connect_to_server(server_address: str = "localhost", server_port: int = 8080
     :raises TimeoutError: If the handler server cannot be reached.
     """
 
-    Logger.log(f"Connecting to server at {server_address}:{server_port}")
-
     # Create a socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(2)
@@ -24,11 +20,8 @@ def connect_to_server(server_address: str = "localhost", server_port: int = 8080
     try:
         sock.connect((server_address, server_port))
     except TimeoutError as e:
-        Logger.log(f"Connection to timed out.")
         raise e
     sock.settimeout(None)
-
-    Logger.log(f"Connection successful")
 
     # All done
     return sock
