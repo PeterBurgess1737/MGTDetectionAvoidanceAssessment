@@ -1,7 +1,7 @@
 import json
 import os
-
 from typing import Dict, List
+
 from typing_extensions import Literal
 
 _keys = Literal["human", "machine"]
@@ -58,3 +58,12 @@ def load_test_data(test_data_path: str) -> Dict[_keys, List[str]]:
             to_return["human"].append(data["text"][index])
 
     return to_return
+
+
+def load_data():
+    """
+    A wrapper to make this work with the main program.
+    Simply just changes the name from load_test_data to load_data and runs with a specified path.
+    """
+
+    return load_test_data("tests/data/MMD-MP-test-data.json")
