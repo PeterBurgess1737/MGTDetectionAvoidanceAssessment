@@ -66,3 +66,5 @@ def paraphraser_server(paraphrase_function: Callable[[str], str],
         else:
             # Because message.type is FINISH we have nothing else to do but terminate
             break
+
+    sock.close()
