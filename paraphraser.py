@@ -34,8 +34,6 @@ def paraphraser_server(paraphrase_function: Callable[[str], str],
     paraphrased version.
 
     If the paraphrasing is not simple, then the flow of this helper can be seen in its implementation.
-    To make things easier, the code to receive messages and send results back can be seen above as their own functions.
-    You can simply import from this file the functions.
 
     :param paraphrase_function: A function that takes the original text and returns a paraphrased version.
     :param server_address: The address of the handler server to connect to.
