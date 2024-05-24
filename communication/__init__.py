@@ -1,3 +1,4 @@
+from .AIDetectorMessages import AIDetectorMessages
 from .BaseMessageType import BaseMessageType
 from .Message import Message
 from .ParaphraserMessageTypes import ParaphraserMessageTypes
