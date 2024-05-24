@@ -15,8 +15,8 @@ def send_percentage_chance_ai(sock: socket.socket, percentage_ai: float) -> None
     """
 
     bytes_to_send = bytes()
-    bytes_to_send += struct.pack('!B', ...)
-    bytes_to_send += struct.pack('!f', percentage_ai)
+    bytes_to_send += struct.pack("!B", ...)
+    bytes_to_send += struct.pack("!f", percentage_ai)
     sock.sendall(bytes_to_send)
 
 
