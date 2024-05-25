@@ -10,3 +10,6 @@ class Message:
 
         self.data: Any = data
         """Any data required for the message."""
+
+    def __str__(self) -> str:
+        return "Message(type=" + self.type.name + ", data='" + str(self.data) + "')"
