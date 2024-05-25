@@ -1,13 +1,12 @@
-from dataclasses import dataclass
 from typing import Any
 
 from .BaseMessageType import BaseMessageType
 
 
-@dataclass
 class Message:
-    type: BaseMessageType
-    """The type of the message."""
+    def __init__(self, type_: BaseMessageType, data: Any) -> None:
+        self.type: BaseMessageType = type_
+        """The type of the message."""
 
-    data: Any
-    """Any data required for the message."""
+        self.data: Any = data
+        """Any data required for the message."""
