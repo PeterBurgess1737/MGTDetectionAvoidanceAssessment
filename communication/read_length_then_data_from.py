@@ -18,6 +18,6 @@ def read_length_then_data_from(sock: socket.socket) -> bytes:
 
     data_bytes = bytes()
     while len(data_bytes) != data_length:
-        data_bytes += sock.recv(data_length - len(data_length))
+        data_bytes += sock.recv(data_length - len(data_bytes))
 
     return data_bytes
