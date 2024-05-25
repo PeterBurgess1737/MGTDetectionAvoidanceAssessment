@@ -66,4 +66,4 @@ def load_data():
     Simply just changes the name from load_test_data to load_data and runs with a specified path.
     """
 
-    return load_test_data("tests/data/MMD-MP-test-data.json")
+    return load_test_data("data/MMD-MP-test-data.json")
