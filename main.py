@@ -25,7 +25,7 @@ import sys
 
 from progress.bar import ChargingBar
 
-from communication import ParaphraserMessageTypes, ServerMessageTypes
+from communication import AIDetectorMessages, ParaphraserMessageTypes, ServerMessageTypes
 
 
 class MyBar(ChargingBar):
@@ -134,6 +134,63 @@ def main(load_data_file: str,
     # Wait for the paraphraser to terminate
     print("Waiting for the paraphraser to terminate")
     process.wait()
+    # Close the socket
+    paraphraser_sock.close()
+
+    # Starting the AI detector helper
+    print("Starting the AI detector helper")
+    command = f"conda run -n {ai_detector_conda_env} python {ai_detector_file}"
+    process = start_process(command)
+
+    # Accepting the connection to the AI detector helper
+    print("Accepting the AI detector connection")
+    ai_detector_sock, _ai_detector_address = sock.accept()
+
+    # Communication time
+
+    progress = MyBar(f"Calculating AI percentages", max=len(combined_data["original_text"]))
+
+    # Sending strings and receiving the results from the AI detector
+    for i, (original_text, paraphrased_text) in \
+            enumerate(zip(combined_data["original_text"], combined_data["paraphrased_text"])):
+        # Send the original text
+        bytes_to_send = ServerMessageTypes.DATA.create_message(original_text)
+        ai_detector_sock.sendall(bytes_to_send)
+
+        # Receiving the result
+        indicator = AIDetectorMessages.read_indicator_from(ai_detector_sock)
+        ai_detector_result = indicator.read_rest_of_message_from(ai_detector_sock)
+
+        # Store the result
+        combined_data["original_detection"][i] = ai_detector_result.data
+
+        # Send the paraphrased text
+        bytes_to_send = ServerMessageTypes.DATA.create_message(paraphrased_text)
+        ai_detector_sock.sendall(bytes_to_send)
+
+        # Receiving the result
+        indicator = AIDetectorMessages.read_indicator_from(ai_detector_sock)
+        ai_detector_result = indicator.read_rest_of_message_from(ai_detector_sock)
+
+        # Store the result
+        combined_data["paraphrased_detection"][i] = ai_detector_result.data
+
+        # Update the progress bar
+        progress.next()
+
+    # Done with the progress bar
+    progress.finish()
+
+    # Finally tell the AI detector to finish
+    print("Tell the AI detector to finish")
+    bytes_to_send = ServerMessageTypes.FINISH.create_message()
+    ai_detector_sock.sendall(bytes_to_send)
+
+    # Wait for the paraphraser to terminate
+    print("Waiting for the AI detector to terminate")
+    process.wait()
+    # Close the socket
+    ai_detector_sock.close()
 
     # Writing the results to a file
     print("Writing to a file")
