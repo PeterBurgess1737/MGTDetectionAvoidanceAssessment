@@ -20,7 +20,6 @@ import importlib.util
 import json
 import pathlib
 import socket
-import struct
 import subprocess
 import sys
 
@@ -83,10 +82,7 @@ def main(load_data_file: str,
         for i, string in enumerate(data[key]):
             # Sending the string
             print("Sending: '" + string[:30] + "'")
-            string_bytes = string.encode("UTF-8")
-            bytes_to_send = bytes()
-            bytes_to_send += struct.pack("!BI", ServerMessageTypes.DATA.value, len(string_bytes))
-            bytes_to_send += string.encode("UTF-8")
+            bytes_to_send = ServerMessageTypes.DATA.create_message(string)
             paraphraser_sock.sendall(bytes_to_send)
 
             # Receiving the paraphrased string
@@ -98,8 +94,7 @@ def main(load_data_file: str,
 
     # Finally tell the paraphraser to finish
     print("Tell the paraphraser to finish")
-    bytes_to_send = bytes()
-    bytes_to_send += struct.pack("!B", ServerMessageTypes.FINISH.value)
+    bytes_to_send = ServerMessageTypes.FINISH.create_message()
     paraphraser_sock.sendall(bytes_to_send)
 
     # Wait for the paraphraser to terminate

@@ -1,24 +1,6 @@
-import socket
-import struct
 from typing import Callable
 
 from communication import ParaphraserMessageTypes, ServerMessageTypes, connect_to_server
-
-
-def send_paraphrased_string(sock: socket.socket, string: str) -> None:
-    """
-    A helper function for the paraphraser.
-    Sends a string back to the handler server.
-
-    :param sock: The socket object connected to the server.
-    :param string: The string to send.
-    """
-
-    string_bytes = string.encode("UTF-8")
-    bytes_to_send = bytes()
-    bytes_to_send += struct.pack("!BI", ParaphraserMessageTypes.DATA.value, len(string_bytes))
-    bytes_to_send += string_bytes
-    sock.sendall(bytes_to_send)
 
 
 def paraphraser_server(paraphrase_function: Callable[[str], str],
@@ -56,7 +38,8 @@ def paraphraser_server(paraphrase_function: Callable[[str], str],
             paraphrased_string = paraphrase_function(string)
 
             # Send it back to the handler server
-            send_paraphrased_string(sock, paraphrased_string)
+            bytes_to_send = ParaphraserMessageTypes.DATA.create_message(paraphrased_string)
+            sock.sendall(bytes_to_send)
 
             # Repeat
             continue
