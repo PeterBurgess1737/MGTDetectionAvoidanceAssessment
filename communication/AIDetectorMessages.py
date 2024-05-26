@@ -14,6 +14,12 @@ def _DATA_read_rest_of_message_from(sock: socket.socket) -> Message:
     return Message(AIDetectorMessages.DATA, percentage_as_float)
 
 
+def _DATA_create_message_with(data: float) -> bytes:
+    message_bytes = struct.pack("!Bf", AIDetectorMessages.DATA.value, data)
+
+    return message_bytes
+
+
 class AIDetectorMessages(BaseMessageType):
     """
     The types of messages sent by the main handler.
@@ -21,7 +27,7 @@ class AIDetectorMessages(BaseMessageType):
     endianness.
     """
 
-    DATA = 1, _DATA_read_rest_of_message_from
+    DATA = 1, _DATA_read_rest_of_message_from, _DATA_create_message_with
     """
     Indicates that the message contains data.
     Following this is four bytes as a float.

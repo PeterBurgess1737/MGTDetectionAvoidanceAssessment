@@ -8,15 +8,20 @@ if TYPE_CHECKING:  # Preventing an import cycle with Message for type checking
 
 
 class BaseMessageType(Enum):
-    def __init__(self, value, read_rest_of_message_from: Callable[[socket.socket], "Message"]):
+    def __init__(self, value,
+                 read_rest_of_message_from: Callable[[socket.socket], "Message"],
+                 create_message: Callable[..., bytes]):
         """
         :param value: The indicator for the message type.
-        :param read_rest_of_message_from: The function that takes a socket and returns the constructed message base on
-            the indicator.
+        :param read_rest_of_message_from:
+            The function that takes a socket and returns the constructed message base on the indicator.
+        :param create_message:
+            The function that takes data necessary to create a message and returns the bytes for that message.
         """
 
         self._value_ = value
         self.read_rest_of_message_from = read_rest_of_message_from
+        self.create_message = create_message
 
     @classmethod
     def from_int(cls, some_int) -> "BaseMessageType":

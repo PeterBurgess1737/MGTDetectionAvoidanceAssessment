@@ -1,4 +1,5 @@
 import socket
+import struct
 
 from communication.BaseMessageType import BaseMessageType
 from .Message import Message
@@ -13,6 +14,14 @@ def _DATA_read_rest_of_message_from(sock: socket.socket) -> Message:
     return Message(ParaphraserMessageTypes.DATA, string)
 
 
+def _DATA_create_message_with(data: str) -> bytes:
+    data_bytes = data.encode("UTF-8")
+    header_bytes = struct.pack("!BI", ParaphraserMessageTypes.DATA.value, len(data_bytes))
+    message_bytes = header_bytes + data_bytes
+
+    return message_bytes
+
+
 class ParaphraserMessageTypes(BaseMessageType):
     """
     The types of messages sent by the main handler.
@@ -20,7 +29,7 @@ class ParaphraserMessageTypes(BaseMessageType):
     endianness.
     """
 
-    DATA = 1, _DATA_read_rest_of_message_from
+    DATA = 1, _DATA_read_rest_of_message_from, _DATA_create_message_with
     """
     Indicates that the message contains data.
     Following this is four bytes as an unsigned integer for the length of the data.
