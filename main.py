@@ -23,7 +23,13 @@ import socket
 import subprocess
 import sys
 
+from progress.bar import ChargingBar
+
 from communication import ParaphraserMessageTypes, ServerMessageTypes
+
+
+class MyBar(ChargingBar):
+    suffix = "%(percent)d%% (elapsed %(elapsed)ss) (eta %(eta)ss)"
 
 
 def start_process(command):
@@ -74,23 +80,28 @@ def main(load_data_file: str,
     paraphrased_data = {}
 
     # Sending strings and receiving the results from the paraphraser
-    print("Paraphrasing everything")
     for key in data.keys():
         paraphrased_data[key] = []
 
-        print("Paraphrasing: " + key)
+        # Progress bar so we can see what is happening
+        progress = MyBar(f"Paraphrasing '{key}'", max=len(data[key]))
+
+        # Paraphrasing the data
         for i, string in enumerate(data[key]):
             # Sending the string
-            print("Sending: '" + string[:30] + "'")
             bytes_to_send = ServerMessageTypes.DATA.create_message(string)
             paraphraser_sock.sendall(bytes_to_send)
 
             # Receiving the paraphrased string
-            print("Waiting for response")
             indicator = ParaphraserMessageTypes.read_indicator_from(paraphraser_sock)
             paraphrase_result = indicator.read_rest_of_message_from(paraphraser_sock)
             paraphrased_data[key].append(paraphrase_result.data)
-            print("Received: '" + paraphrase_result.data[:30] + "'")
+
+            # Update the progress bar
+            progress.next()
+
+        # Done with the progress bar
+        progress.finish()
 
     # Finally tell the paraphraser to finish
     print("Tell the paraphraser to finish")
