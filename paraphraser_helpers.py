@@ -14,10 +14,10 @@ def send_paraphrased_string(sock: socket.socket, string: str) -> None:
     :param string: The string to send.
     """
 
+    string_bytes = string.encode("UTF-8")
     bytes_to_send = bytes()
-    bytes_to_send += struct.pack("!B", ParaphraserMessageTypes.DATA.value)
-    bytes_to_send += struct.pack("!I", len(string))
-    bytes_to_send += string.encode("UTF-8")
+    bytes_to_send += struct.pack("!BI", ParaphraserMessageTypes.DATA.value, len(string_bytes))
+    bytes_to_send += string_bytes
     sock.sendall(bytes_to_send)
 
 
