@@ -60,6 +60,34 @@ def main(load_data_file: str,
     print("Loading the data")
     data = load_data()
 
+    # Where all the data is stored
+    # Think of this like a table in a database where the keys are the column names
+    combined_data = {
+        # The original texts, both human and AI, from the given dataset
+        "original_text": [],
+        # A boolean value stating of the corresponding text is AI generated
+        "is_ai": [],
+        # The paraphrased version of the original text.
+        "paraphrased_text": [],
+        # The detection rate of the original text according to the AI text detector
+        "original_detection": [],
+        # The detection rate of the paraphrased text according to the AI text detector
+        "paraphrased_detection": []
+    }
+
+    # Processing the given data to fit in this combined_data dictionary
+    combined_data["original_text"].extend(data["human"])
+    combined_data["original_text"].extend(data["machine"])
+    combined_data["is_ai"].extend([False for _ in range(len(data["human"]))])
+    combined_data["is_ai"].extend([True for _ in range(len(data["machine"]))])
+    # Fill the other entries with default values
+    combined_data["paraphrased_text"].extend([None for _ in range(len(combined_data["original_text"]))])
+    combined_data["original_detection"].extend([None for _ in range(len(combined_data["original_text"]))])
+    combined_data["paraphrased_detection"].extend([None for _ in range(len(combined_data["original_text"]))])
+
+    # We no longer need the original data
+    del data
+
     # Creating a socket that the helpers can connect to for communication
     print("Crating the socket")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,31 +105,26 @@ def main(load_data_file: str,
 
     # Communication time
 
-    paraphrased_data = {}
+    progress = MyBar(f"Paraphrasing", max=len(combined_data["original_text"]))
 
     # Sending strings and receiving the results from the paraphraser
-    for key in data.keys():
-        paraphrased_data[key] = []
+    for i, string in enumerate(combined_data["original_text"]):
+        # Sending the string
+        bytes_to_send = ServerMessageTypes.DATA.create_message(string)
+        paraphraser_sock.sendall(bytes_to_send)
 
-        # Progress bar so we can see what is happening
-        progress = MyBar(f"Paraphrasing '{key}'", max=len(data[key]))
+        # Receiving the paraphrased string
+        indicator = ParaphraserMessageTypes.read_indicator_from(paraphraser_sock)
+        paraphrase_result = indicator.read_rest_of_message_from(paraphraser_sock)
 
-        # Paraphrasing the data
-        for i, string in enumerate(data[key]):
-            # Sending the string
-            bytes_to_send = ServerMessageTypes.DATA.create_message(string)
-            paraphraser_sock.sendall(bytes_to_send)
+        # Store it
+        combined_data["paraphrased_text"][i] = paraphrase_result.data
 
-            # Receiving the paraphrased string
-            indicator = ParaphraserMessageTypes.read_indicator_from(paraphraser_sock)
-            paraphrase_result = indicator.read_rest_of_message_from(paraphraser_sock)
-            paraphrased_data[key].append(paraphrase_result.data)
+        # Update the progress bar
+        progress.next()
 
-            # Update the progress bar
-            progress.next()
-
-        # Done with the progress bar
-        progress.finish()
+    # Done with the progress bar
+    progress.finish()
 
     # Finally tell the paraphraser to finish
     print("Tell the paraphraser to finish")
@@ -115,7 +138,7 @@ def main(load_data_file: str,
     # Writing the results to a file
     print("Writing to a file")
     with open("paraphrased_results.json", "w") as f:
-        f.write(json.dumps(paraphrased_data))
+        f.write(json.dumps(combined_data))
 
     print("All done")
 
