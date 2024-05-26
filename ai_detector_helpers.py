@@ -1,23 +1,6 @@
-import socket
-import struct
 from typing import Callable
 
 from communication import AIDetectorMessages, ServerMessageTypes, connect_to_server
-
-
-def send_percentage_chance_ai(sock: socket.socket, percentage_ai: float) -> None:
-    """
-    A helper function for the AI detector.
-    Sends a percentage chance of a message being AI generated to the handler server.
-
-    :param sock: The socket object connected to the server.
-    :param percentage_ai: The percentage chance of a message being AI generated to send.
-    """
-
-    bytes_to_send = bytes()
-    bytes_to_send += struct.pack("!B", AIDetectorMessages.DATA.value)
-    bytes_to_send += struct.pack("!f", percentage_ai)
-    sock.sendall(bytes_to_send)
 
 
 def ai_detector_server(detector_function: Callable[[str], float],
@@ -56,7 +39,8 @@ def ai_detector_server(detector_function: Callable[[str], float],
             percentage_change_ai = detector_function(string)
 
             # Send the result back to the handler server
-            send_percentage_chance_ai(sock, percentage_change_ai)
+            bytes_to_send = AIDetectorMessages.DATA.create_message(percentage_change_ai)
+            sock.sendall(bytes_to_send)
 
             # Repeat
             continue
