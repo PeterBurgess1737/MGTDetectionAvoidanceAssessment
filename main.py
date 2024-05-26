@@ -25,7 +25,7 @@ import sys
 
 from progress.bar import ChargingBar
 
-from communication import AIDetectorMessages, ParaphraserMessageTypes, ServerMessageTypes
+from communication import AIDetectorMessages, ParaphraserMessages, ServerMessages
 
 
 class MyBar(ChargingBar):
@@ -110,11 +110,11 @@ def main(load_data_file: str,
     # Sending strings and receiving the results from the paraphraser
     for i, string in enumerate(combined_data["original_text"]):
         # Sending the string
-        bytes_to_send = ServerMessageTypes.DATA.create_message(string)
+        bytes_to_send = ServerMessages.DATA.create_message(string)
         paraphraser_sock.sendall(bytes_to_send)
 
         # Receiving the paraphrased string
-        indicator = ParaphraserMessageTypes.read_indicator_from(paraphraser_sock)
+        indicator = ParaphraserMessages.read_indicator_from(paraphraser_sock)
         paraphrase_result = indicator.read_rest_of_message_from(paraphraser_sock)
 
         # Store it
@@ -128,7 +128,7 @@ def main(load_data_file: str,
 
     # Finally tell the paraphraser to finish
     print("Tell the paraphraser to finish")
-    bytes_to_send = ServerMessageTypes.FINISH.create_message()
+    bytes_to_send = ServerMessages.FINISH.create_message()
     paraphraser_sock.sendall(bytes_to_send)
 
     # Wait for the paraphraser to terminate
@@ -154,7 +154,7 @@ def main(load_data_file: str,
     for i, (original_text, paraphrased_text) in \
             enumerate(zip(combined_data["original_text"], combined_data["paraphrased_text"])):
         # Send the original text
-        bytes_to_send = ServerMessageTypes.DATA.create_message(original_text)
+        bytes_to_send = ServerMessages.DATA.create_message(original_text)
         ai_detector_sock.sendall(bytes_to_send)
 
         # Receiving the result
@@ -165,7 +165,7 @@ def main(load_data_file: str,
         combined_data["original_detection"][i] = ai_detector_result.data
 
         # Send the paraphrased text
-        bytes_to_send = ServerMessageTypes.DATA.create_message(paraphrased_text)
+        bytes_to_send = ServerMessages.DATA.create_message(paraphrased_text)
         ai_detector_sock.sendall(bytes_to_send)
 
         # Receiving the result
@@ -183,7 +183,7 @@ def main(load_data_file: str,
 
     # Finally tell the AI detector to finish
     print("Tell the AI detector to finish")
-    bytes_to_send = ServerMessageTypes.FINISH.create_message()
+    bytes_to_send = ServerMessages.FINISH.create_message()
     ai_detector_sock.sendall(bytes_to_send)
 
     # Wait for the paraphraser to terminate

@@ -1,7 +1,7 @@
 import socket
 import struct
 
-from communication.BaseMessageType import BaseMessageType
+from communication.BaseMessages import BaseMessages
 from .Message import Message
 from .read_length_then_data_from import read_length_then_data_from
 
@@ -11,18 +11,18 @@ def _DATA_read_rest_of_message_from(sock: socket.socket) -> Message:
 
     string = data_bytes.decode("UTF-8")
 
-    return Message(ParaphraserMessageTypes.DATA, string)
+    return Message(ParaphraserMessages.DATA, string)
 
 
 def _DATA_create_message_with(data: str) -> bytes:
     data_bytes = data.encode("UTF-8")
-    header_bytes = struct.pack("!BI", ParaphraserMessageTypes.DATA.value, len(data_bytes))
+    header_bytes = struct.pack("!BI", ParaphraserMessages.DATA.value, len(data_bytes))
     message_bytes = header_bytes + data_bytes
 
     return message_bytes
 
 
-class ParaphraserMessageTypes(BaseMessageType):
+class ParaphraserMessages(BaseMessages):
     """
     The types of messages sent by the main handler.
     This value is seen as the first byte of a message from the paraphraser server as an unsigned char in network

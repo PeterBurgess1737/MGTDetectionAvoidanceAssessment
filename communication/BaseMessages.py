@@ -7,7 +7,7 @@ if TYPE_CHECKING:  # Preventing an import cycle with Message for type checking
     from .Message import Message
 
 
-class BaseMessageType(Enum):
+class BaseMessages(Enum):
     def __init__(self, value,
                  read_rest_of_message_from: Callable[[socket.socket], "Message"],
                  create_message: Callable[..., bytes]):
@@ -24,7 +24,7 @@ class BaseMessageType(Enum):
         self.create_message = create_message
 
     @classmethod
-    def from_int(cls, some_int) -> "BaseMessageType":
+    def from_int(cls, some_int) -> "BaseMessages":
         """
         Given an integer, convert it to a value from a BaseMessageType enum.
 
@@ -40,7 +40,7 @@ class BaseMessageType(Enum):
         raise ValueError(f"Unknown int for MessageTypes: {some_int}")
 
     @classmethod
-    def read_indicator_from(cls, sock: socket.socket) -> "BaseMessageType":
+    def read_indicator_from(cls, sock: socket.socket) -> "BaseMessages":
         """
         Given a socket, read a value from a BaseMessageType enum.
         :param sock: The socket to read.

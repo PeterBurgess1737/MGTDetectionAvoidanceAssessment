@@ -1,7 +1,7 @@
 import socket
 import struct
 
-from .BaseMessageType import BaseMessageType
+from .BaseMessages import BaseMessages
 from .Message import Message
 
 
@@ -20,7 +20,7 @@ def _DATA_create_message_with(data: float) -> bytes:
     return message_bytes
 
 
-class AIDetectorMessages(BaseMessageType):
+class AIDetectorMessages(BaseMessages):
     """
     The types of messages sent by the main handler.
     This value is seen as the first byte of a message from the AI detector server as an unsigned char in network

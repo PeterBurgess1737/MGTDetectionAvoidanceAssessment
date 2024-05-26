@@ -1,6 +1,6 @@
 from typing import Callable
 
-from communication import ParaphraserMessageTypes, ServerMessageTypes, connect_to_server
+from communication import ParaphraserMessages, ServerMessages, connect_to_server
 
 
 def paraphraser_server(paraphrase_function: Callable[[str], str],
@@ -27,10 +27,10 @@ def paraphraser_server(paraphrase_function: Callable[[str], str],
 
     while True:
         # Receive a message from the handler sever
-        indicator = ServerMessageTypes.read_indicator_from(sock)
+        indicator = ServerMessages.read_indicator_from(sock)
         message = indicator.read_rest_of_message_from(sock)
 
-        if message.type == ServerMessageTypes.DATA:
+        if message.type == ServerMessages.DATA:
             # Get the string
             string = message.data
 
@@ -38,7 +38,7 @@ def paraphraser_server(paraphrase_function: Callable[[str], str],
             paraphrased_string = paraphrase_function(string)
 
             # Send it back to the handler server
-            bytes_to_send = ParaphraserMessageTypes.DATA.create_message(paraphrased_string)
+            bytes_to_send = ParaphraserMessages.DATA.create_message(paraphrased_string)
             sock.sendall(bytes_to_send)
 
             # Repeat

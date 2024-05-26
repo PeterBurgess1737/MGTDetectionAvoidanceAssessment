@@ -1,6 +1,6 @@
 from typing import Callable
 
-from communication import AIDetectorMessages, ServerMessageTypes, connect_to_server
+from communication import AIDetectorMessages, ServerMessages, connect_to_server
 
 
 def ai_detector_server(detector_function: Callable[[str], float],
@@ -28,10 +28,10 @@ def ai_detector_server(detector_function: Callable[[str], float],
 
     while True:
         # Receive a message from the handler sever
-        indicator = ServerMessageTypes.read_indicator_from(sock)
+        indicator = ServerMessages.read_indicator_from(sock)
         message = indicator.read_rest_of_message_from(sock)
 
-        if message.type == ServerMessageTypes.DATA:
+        if message.type == ServerMessages.DATA:
             # Get the string
             string = message.data
 

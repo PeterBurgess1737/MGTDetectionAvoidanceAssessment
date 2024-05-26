@@ -1,11 +1,11 @@
 from typing import Any
 
-from .BaseMessageType import BaseMessageType
+from .BaseMessages import BaseMessages
 
 
 class Message:
-    def __init__(self, type_: BaseMessageType, data: Any) -> None:
-        self.type: BaseMessageType = type_
+    def __init__(self, type_: BaseMessages, data: Any) -> None:
+        self.type: BaseMessages = type_
         """The type of the message."""
 
         self.data: Any = data

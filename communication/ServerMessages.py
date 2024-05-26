@@ -1,7 +1,7 @@
 import socket
 import struct
 
-from .BaseMessageType import BaseMessageType
+from .BaseMessages import BaseMessages
 from .Message import Message
 from .read_length_then_data_from import read_length_then_data_from
 
@@ -11,28 +11,28 @@ def _DATA_read_rest_of_message_from(sock: socket.socket) -> Message:
 
     string = data_bytes.decode("UTF-8")
 
-    return Message(ServerMessageTypes.DATA, string)
+    return Message(ServerMessages.DATA, string)
 
 
 def _DATA_create_message_with(data: str) -> bytes:
     data_bytes = data.encode("UTF-8")
-    header_bytes = struct.pack("!BI", ServerMessageTypes.DATA.value, len(data_bytes))
+    header_bytes = struct.pack("!BI", ServerMessages.DATA.value, len(data_bytes))
     message_bytes = header_bytes + data_bytes
 
     return message_bytes
 
 
 def _FINISH_read_rest_of_message_from(sock: socket.socket) -> Message:
-    return Message(ServerMessageTypes.FINISH, None)
+    return Message(ServerMessages.FINISH, None)
 
 
 def _FINISH_create_message_with() -> bytes:
-    message_bytes = struct.pack("!B", ServerMessageTypes.FINISH.value)
+    message_bytes = struct.pack("!B", ServerMessages.FINISH.value)
 
     return message_bytes
 
 
-class ServerMessageTypes(BaseMessageType):
+class ServerMessages(BaseMessages):
     """
     The types of messages sent by the main handler.
     This value is seen as the first byte of a message from the handler server as an unsigned char in network endianness.
