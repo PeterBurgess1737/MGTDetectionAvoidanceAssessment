@@ -80,13 +80,14 @@ def main(load_data_file: str,
     combined_data["original_text"].extend(data["machine"])
     combined_data["is_ai"].extend([False for _ in range(len(data["human"]))])
     combined_data["is_ai"].extend([True for _ in range(len(data["machine"]))])
+
+    # We no longer need the original data
+    del data
+
     # Fill the other entries with default values
     combined_data["paraphrased_text"].extend([None for _ in range(len(combined_data["original_text"]))])
     combined_data["original_detection"].extend([None for _ in range(len(combined_data["original_text"]))])
     combined_data["paraphrased_detection"].extend([None for _ in range(len(combined_data["original_text"]))])
-
-    # We no longer need the original data
-    del data
 
     # Creating a socket that the helpers can connect to for communication
     print("Crating the socket")
