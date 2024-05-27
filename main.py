@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import pathlib
+import shutil
 import socket
 import subprocess
 import sys
@@ -22,6 +23,64 @@ def start_process(command):
     )
 
     return process
+
+
+def create_save(load_data_filename: str,
+                paraphraser_file: str, paraphraser_conda_env: str,
+                ai_detector_file: str, ai_detector_conda_env: str,
+                combined_data: dict) -> None:
+    """
+    Creates a save directory.
+    Saves the results from the current to a file.
+    Then copies over the necessary files to recreate the results.
+    """
+
+    print("create_save - Creating save directory")
+    save_dir_name = f"{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
+    save_path = pathlib.Path("results/" + save_dir_name).resolve()
+    save_path.mkdir(parents=True, exist_ok=True)
+
+    # Writing the results to a file
+    print("create_save - Writing results to a file")
+    with open(save_path / "paraphrased_results.json", "w") as f:
+        f.write(json.dumps(combined_data))
+
+    # Copying over some files to a save directory
+    print("create_save - Copying over python files")
+    python_file_path = save_path / "python_file_save"
+    python_file_path.mkdir(parents=True, exist_ok=True)
+
+    # The load data file
+    load_data_filepath = pathlib.Path(load_data_filename).resolve()
+    shutil.copy(load_data_filepath, python_file_path / load_data_filepath.name)
+
+    # The paraphraser_file
+    paraphraser_filepath = pathlib.Path(paraphraser_file).resolve()
+    shutil.copy(paraphraser_filepath, python_file_path / paraphraser_filepath.name)
+
+    # The ai_detector_file
+    ai_detector_filepath = pathlib.Path(ai_detector_file).resolve()
+    shutil.copy(ai_detector_filepath, python_file_path / ai_detector_filepath.name)
+
+    # Copying over the conda environment yaml files
+    print("create_save - Copying over conda environment files")
+    conda_path = save_path / "conda_environment_save"
+    conda_path.mkdir(parents=True, exist_ok=True)
+
+    # The paraphraser conda environment
+    paraphraser_yaml_file = conda_path / f"{paraphraser_conda_env}_environment.yaml"
+    subprocess.run(f"conda env export --name \"{paraphraser_conda_env}\" --file \"{paraphraser_yaml_file}\"",
+                   shell=True, check=True)
+
+    # The ai detector conda environment
+    ai_detector_yaml_file = conda_path / f"{ai_detector_conda_env}_environment.yml"
+    subprocess.run(f"conda env export --name \"{ai_detector_conda_env}\" --file \"{ai_detector_yaml_file}\"",
+                   shell=True, check=True)
+
+    # Writing some extra information
+    print("create_save - Writing execution command")
+    with open(save_path / "execution_command.txt", "w") as f:
+        print(f"python {' '.join(sys.argv)}", file=f)
 
 
 def main(load_data_filename: str,
@@ -176,15 +235,11 @@ def main(load_data_filename: str,
     # Close the socket
     ai_detector_sock.close()
 
-    # Creating the directory to save the results to
-    save_dir_name = f"{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
-    save_path = pathlib.Path("results/" + save_dir_name)
-    save_path.mkdir(parents=True, exist_ok=True)
-
-    # Writing the results to a file
-    print("Writing results to a file")
-    with open(save_path / "paraphrased_results.json", "w") as f:
-        f.write(json.dumps(combined_data))
+    # Saving everything
+    create_save(load_data_filename,
+                paraphraser_file, paraphraser_conda_env,
+                ai_detector_file, ai_detector_conda_env,
+                combined_data)
 
     print("All done")
 
