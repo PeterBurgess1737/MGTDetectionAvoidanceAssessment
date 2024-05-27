@@ -24,14 +24,14 @@ def start_process(command):
     return process
 
 
-def main(load_data_file: str,
+def main(load_data_filename: str,
          paraphraser_file: str, paraphraser_conda_env: str,
          ai_detector_file: str, ai_detector_conda_env: str):
     # Pretend the file pointed to by load_data_file is a module and load it
     print("Loading the load_data function")
-    filepath = pathlib.Path(load_data_file).resolve()
-    module_name = filepath.stem
-    spec = importlib.util.spec_from_file_location(module_name, load_data_file)
+    load_data_filepath = pathlib.Path(load_data_filename).resolve()
+    module_name = load_data_filepath.stem
+    spec = importlib.util.spec_from_file_location(module_name, load_data_filename)
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
