@@ -1,27 +1,10 @@
-"""
-What do we need?
-
-Well we need to load the data.
-This will be a dictionary with two keys, 'human' and 'machine'.
-The values will be a list of strings for texts.
-
-We need to start the paraphraser helper and connect to it.
-Then send each message in a sequence and get the result.
-Once all messages have been sent then tell it to finish.
-
-Then we need to start the AI detector and connect to it.
-Send each text in a sequence and get the result.
-Then tell it to finish.
-
-Finally, write all the data to a json file for further processing.
-"""
-
 import importlib.util
 import json
 import pathlib
 import socket
 import subprocess
 import sys
+from datetime import datetime
 
 from progress.bar import ChargingBar
 
@@ -193,9 +176,14 @@ def main(load_data_file: str,
     # Close the socket
     ai_detector_sock.close()
 
+    # Creating the directory to save the results to
+    save_dir_name = f"{datetime.now().strftime('%Y.%m.%d %H;%M;%S')}"
+    save_path = pathlib.Path("results/" + save_dir_name)
+    save_path.mkdir(parents=True, exist_ok=True)
+
     # Writing the results to a file
     print("Writing to a file")
-    with open("paraphrased_results.json", "w") as f:
+    with open(save_path / "paraphrased_results.json", "w") as f:
         f.write(json.dumps(combined_data))
 
     print("All done")
