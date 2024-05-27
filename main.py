@@ -177,12 +177,12 @@ def main(load_data_filename: str,
     ai_detector_sock.close()
 
     # Creating the directory to save the results to
-    save_dir_name = f"{datetime.now().strftime('%Y.%m.%d %H;%M;%S')}"
+    save_dir_name = f"{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
     save_path = pathlib.Path("results/" + save_dir_name)
     save_path.mkdir(parents=True, exist_ok=True)
 
     # Writing the results to a file
-    print("Writing to a file")
+    print("Writing results to a file")
     with open(save_path / "paraphrased_results.json", "w") as f:
         f.write(json.dumps(combined_data))
 
