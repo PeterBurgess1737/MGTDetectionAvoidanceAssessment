@@ -73,7 +73,7 @@ def create_save(load_data_filename: str,
                    shell=True, check=True)
 
     # The ai detector conda environment
-    ai_detector_yaml_file = conda_path / f"{ai_detector_conda_env}_environment.yml"
+    ai_detector_yaml_file = conda_path / f"{ai_detector_conda_env}_environment.yaml"
     subprocess.run(f"conda env export --name \"{ai_detector_conda_env}\" --file \"{ai_detector_yaml_file}\"",
                    shell=True, check=True)
 
