@@ -85,7 +85,8 @@ def create_save(load_data_filename: str,
 
 def main(load_data_filename: str,
          paraphraser_file: str, paraphraser_conda_env: str,
-         ai_detector_file: str, ai_detector_conda_env: str):
+         ai_detector_file: str, ai_detector_conda_env: str,
+         timeout_when_accepting_connections: int = 5):
     # Pretend the file pointed to by load_data_file is a module and load it
     print("Loading the load_data function")
     load_data_filepath = pathlib.Path(load_data_filename).resolve()
@@ -144,7 +145,14 @@ def main(load_data_filename: str,
 
     # Accepting the connection to the paraphraser helper
     print("Accepting the paraphraser connection")
-    paraphraser_sock, _paraphraser_address = sock.accept()
+    sock.settimeout(timeout_when_accepting_connections)
+    try:
+        paraphraser_sock, _paraphraser_address = sock.accept()
+    except socket.timeout:
+        print("Timed out when attempting to accept the paraphraser connection request")
+        print("Either the paraphraser took too long to start or crashed")
+        return
+    sock.settimeout(None)
 
     # Communication time
 
@@ -187,7 +195,14 @@ def main(load_data_filename: str,
 
     # Accepting the connection to the AI detector helper
     print("Accepting the AI detector connection")
-    ai_detector_sock, _ai_detector_address = sock.accept()
+    sock.settimeout(timeout_when_accepting_connections)
+    try:
+        ai_detector_sock, _ai_detector_address = sock.accept()
+    except socket.timeout:
+        print("Timed out when attempting to accept the AI detector connection request")
+        print("Either the AI detector took too long to start or crashed")
+        return
+    sock.settimeout(None)
 
     # Communication time
 
@@ -287,8 +302,17 @@ if __name__ == '__main__':
         dest="ai_detector_conda_env"
     )
 
+    parser.add_argument(
+        "--timeout-when-accepting-connections",
+        default=5,
+        type=int,
+        help="The maximum amount of time the main handler will wait when accepting helper connections.",
+        dest="timeout_when_accepting_connections",
+    )
+
     args = parser.parse_args()
 
     main(args.load_data_file,
          args.paraphraser_file, args.paraphraser_conda_env,
-         args.ai_detector_file, args.ai_detector_conda_env)
+         args.ai_detector_file, args.ai_detector_conda_env,
+         timeout_when_accepting_connections=args.timeout_when_accepting_connections)
