@@ -36,7 +36,7 @@ def create_save(load_data_filename: str,
     """
 
     print("create_save - Creating save directory")
-    save_dir_name = f"{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
+    save_dir_name = f"{datetime.now().strftime('%Y-%m-%d %H;%M;%S')}"
     save_path = pathlib.Path("results/" + save_dir_name).resolve()
     save_path.mkdir(parents=True, exist_ok=True)
 
