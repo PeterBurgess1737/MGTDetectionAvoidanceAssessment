@@ -1,0 +1,1 @@
+python main.py --load-data-file load_data.py --paraphraser-file gpt_paraphraser.py --paraphraser-conda-env gpt_env --ai-detector-file radar_detector.py --ai-detector-conda-env radar_env
