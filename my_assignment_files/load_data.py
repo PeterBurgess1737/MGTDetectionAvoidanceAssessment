@@ -1,6 +1,8 @@
 import csv
 import pathlib
 
+import random
+
 
 def load_data(logging: bool = False):
     data = {
@@ -50,6 +52,11 @@ def load_data(logging: bool = False):
         if logging:
             print("Skipped", len(skipped_rows_numbers))
             print("Loaded", len(data["human"]) + len(data["machine"]))
+
+    random.seed(0)
+
+    data["human"] = random.sample(data["human"], 100)
+    data["machine"] = random.sample(data["machine"], 100)
 
     return data
 
