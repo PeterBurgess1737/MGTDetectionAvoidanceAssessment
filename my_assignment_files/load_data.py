@@ -99,9 +99,6 @@ def main():
     # This appears to occur when there are newlines within the text field
     # For now at least I am ignoring the rows that are causing errors
     load_data(logging=True)
-    # OUTPUT:
-    # Skipped 17724
-    # Loaded 798943
 
 
 if __name__ == "__main__":
