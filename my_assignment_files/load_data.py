@@ -26,7 +26,7 @@ def load_data(logging: bool = False):
     skipped_rows_numbers = []
     encoding = tiktoken.encoding_for_model(MODEL)
 
-    with open(pathlib.Path("data/data.csv"), "r", encoding="UTF-8") as f:
+    with open(pathlib.Path("my_assignment_files/data/data.csv"), "r", encoding="UTF-8") as f:
         # Read as a csv file
         csvreader = csv.reader(f, quotechar='"')
 
