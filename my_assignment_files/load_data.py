@@ -1,7 +1,15 @@
 import csv
 import pathlib
-
 import random
+
+import tiktoken
+
+# Should be the same as in gpt_paraphraser.py
+MODEL = "gpt-3.5-turbo"
+
+# The maximum amount of data to read
+# Divide this by 2 to get the maximum for human and machine separately
+MAX_DATA = 1000
 
 
 def load_data(logging: bool = False):
@@ -10,9 +18,15 @@ def load_data(logging: bool = False):
         "machine": []
     }
 
-    skipped_rows_numbers = []
+    human_max = MAX_DATA // 2
+    human_num = 0
+    machine_max = MAX_DATA // 2
+    machine_num = 0
 
-    with open(pathlib.Path("my_assignment_files/data/data.csv"), "r", encoding="UTF-8") as f:
+    skipped_rows_numbers = []
+    encoding = tiktoken.encoding_for_model(MODEL)
+
+    with open(pathlib.Path("data/data.csv"), "r", encoding="UTF-8") as f:
         # Read as a csv file
         csvreader = csv.reader(f, quotechar='"')
 
@@ -23,13 +37,33 @@ def load_data(logging: bool = False):
         index = 1
         while True:
             try:
+                # Grab the row data
                 row = next(csvreader)
                 text = row[0]
-                source = row[1]
+                source = row[1].strip().lower()
 
-                if source.strip().lower() == "human":
+                if source == "human":
+                    if human_num >= human_max:
+                        print(f"Skipped row {index} due to max number of human data encountered")
+                        continue
+                else:
+                    if machine_num >= machine_max:
+                        print(f"Skipped row {index} due to max number of machine data encountered")
+                        continue
+
+                # Check if there is too many tokens
+                tokens = encoding.encode(text)
+                if len(tokens) > 16000:
+                    if logging:
+                        print(f"Skipped row {index} due to too many tokens")
+                        continue
+
+                # If valid then add to the appropriate section
+                if source == "human":
+                    human_num += 1
                     data["human"].append(text)
                 else:
+                    machine_num += 1
                     data["machine"].append(text)
 
             except StopIteration:
@@ -51,12 +85,11 @@ def load_data(logging: bool = False):
 
         if logging:
             print("Skipped", len(skipped_rows_numbers))
-            print("Loaded", len(data["human"]) + len(data["machine"]))
+            print("Loaded", len(data["human"]) + len(data["machine"]), "total")
+            print("\tHuman", len(data["human"]))
+            print("\tMachine", len(data["machine"]))
 
     random.seed(0)
-
-    data["human"] = random.sample(data["human"], 100)
-    data["machine"] = random.sample(data["machine"], 100)
 
     return data
 
