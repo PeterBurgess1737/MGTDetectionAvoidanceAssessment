@@ -44,11 +44,13 @@ def load_data(logging: bool = False):
 
                 if source == "human":
                     if human_num >= human_max:
-                        print(f"Skipped row {index} due to max number of human data encountered")
+                        if logging:
+                            print(f"Skipped row {index} due to max number of human data encountered")
                         continue
                 else:
                     if machine_num >= machine_max:
-                        print(f"Skipped row {index} due to max number of machine data encountered")
+                        if logging:
+                            print(f"Skipped row {index} due to max number of machine data encountered")
                         continue
 
                 # Check if there is too many tokens
@@ -56,7 +58,7 @@ def load_data(logging: bool = False):
                 if len(tokens) > 16000:
                     if logging:
                         print(f"Skipped row {index} due to too many tokens")
-                        continue
+                    continue
 
                 # If valid then add to the appropriate section
                 if source == "human":
