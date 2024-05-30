@@ -1,6 +1,5 @@
 import csv
 import pathlib
-import random
 
 import tiktoken
 
@@ -90,8 +89,6 @@ def load_data(logging: bool = False):
             print("Loaded", len(data["human"]) + len(data["machine"]), "total")
             print("\tHuman", len(data["human"]))
             print("\tMachine", len(data["machine"]))
-
-    random.seed(0)
 
     return data
 
