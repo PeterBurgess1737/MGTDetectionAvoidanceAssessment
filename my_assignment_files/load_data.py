@@ -28,10 +28,12 @@ def load_data(logging: bool = False):
     df = pd.read_csv(pathlib.Path("my_assignment_files/data/data.csv"))
 
     for index, row in df.iterrows():
-        source = row["source"]
+        source = row["source"].strip().lower()
 
         # Terminate if at max data
         if human_num >= human_max and machine_num >= machine_max:
+            if logging:
+                print("Max number of human and machine data encountered")
             break
 
         # Skip if reached max amount
