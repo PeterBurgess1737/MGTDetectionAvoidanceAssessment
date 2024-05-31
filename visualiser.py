@@ -123,7 +123,7 @@ def plot_as_probability_density(pre_paraphrased_data: _Data, post_paraphrased_da
     sns.kdeplot(post_paraphrased_data[1], ax=axes[1], label="Machine", fill=True, clip=(0, 1))
     axes[1].set_title("Paraphrased Texts")
     axes[1].legend(loc="upper left")
-    axes[0].legend(loc="upper left")
+    axes[1].set_xlim(0, 1)
 
     plt.tight_layout()
 
