@@ -26,6 +26,7 @@ def load_data(logging: bool = False):
     encoding = tiktoken.encoding_for_model(MODEL)
 
     df = pd.read_csv(pathlib.Path("my_assignment_files/data/data.csv"))
+    df = df.sample(frac=1, random_state=1).reset_index(drop=True)
 
     for index, row in df.iterrows():
         source = row["source"].strip().lower()
