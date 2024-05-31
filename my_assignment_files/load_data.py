@@ -1,6 +1,6 @@
-import csv
 import pathlib
 
+import pandas as pd
 import tiktoken
 
 # Should be the same as in gpt_paraphraser.py
@@ -25,70 +25,51 @@ def load_data(logging: bool = False):
     skipped_rows_numbers = []
     encoding = tiktoken.encoding_for_model(MODEL)
 
-    with open(pathlib.Path("my_assignment_files/data/data.csv"), "r", encoding="UTF-8") as f:
-        # Read as a csv file
-        csvreader = csv.reader(f, quotechar='"')
+    df = pd.read_csv(pathlib.Path("my_assignment_files/data/data.csv"))
 
-        # Skip header row
-        next(csvreader)
+    for index, row in df.iterrows():
+        source = row["source"]
 
-        # Parse each row
-        index = 1
-        while True:
-            try:
-                # Grab the row data
-                row = next(csvreader)
-                text = row[0]
-                source = row[1].strip().lower()
+        # Terminate if at max data
+        if human_num >= human_max and machine_num >= machine_max:
+            break
 
-                if source == "human":
-                    if human_num >= human_max:
-                        if logging:
-                            print(f"Skipped row {index} due to max number of human data encountered")
-                        continue
-                else:
-                    if machine_num >= machine_max:
-                        if logging:
-                            print(f"Skipped row {index} due to max number of machine data encountered")
-                        continue
-
-                # Check if there is too many tokens
-                tokens = encoding.encode(text)
-                if len(tokens) > 16000:
-                    if logging:
-                        print(f"Skipped row {index} due to too many tokens")
-                    continue
-
-                # If valid then add to the appropriate section
-                if source == "human":
-                    human_num += 1
-                    data["human"].append(text)
-                else:
-                    machine_num += 1
-                    data["machine"].append(text)
-
-            except StopIteration:
-                break
-
-            except csv.Error as e:
-                skipped_rows_numbers.append(index)
+        # Skip if reached max amount
+        if source == "human":
+            if human_num >= human_max:
                 if logging:
-                    print(f"Skipped row {index} due to csv.Error: {e}")
-
-            except IndexError as e:
+                    print(f"Skipped row {index} due to max number of human data encountered")
                 skipped_rows_numbers.append(index)
+                continue
+        else:
+            if machine_num >= machine_max:
                 if logging:
-                    print(f"Skipped row {index} due to IndexError: {e}")
-                    print(row)
+                    print(f"Skipped row {index} due to max number of machine data encountered")
+                skipped_rows_numbers.append(index)
+                continue
 
-            finally:
-                index += 1
+        text = row["text"]
 
-        if logging:
-            print("Skipped", len(skipped_rows_numbers))
-            print("Loaded", len(data["human"]) + len(data["machine"]), "total")
-            print("\tHuman", len(data["human"]))
-            print("\tMachine", len(data["machine"]))
+        # Skip if there is too many tokens
+        tokens = encoding.encode(text)
+        if len(tokens) > 16000:
+            if logging:
+                print(f"Skipped row {index} due to too many tokens")
+            skipped_rows_numbers.append(index)
+            continue
+
+        if source == "human":
+            human_num += 1
+            data["human"].append(text)
+        else:
+            machine_num += 1
+            data["machine"].append(text)
+
+    if logging:
+        print("Skipped", len(skipped_rows_numbers))
+        print("Loaded", len(data["human"]) + len(data["machine"]), "total")
+        print("\tHuman", len(data["human"]))
+        print("\tMachine", len(data["machine"]))
 
     return data
 
