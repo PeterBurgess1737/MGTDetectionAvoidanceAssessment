@@ -1,5 +1,6 @@
 import pathlib
 
+import openai
 from openai import OpenAI
 
 from paraphraser_helpers import paraphraser_server
@@ -23,13 +24,16 @@ ROLE = ("When it comes to writing content, two factors are crucial, 'perplexity'
 
 
 def paraphrase_with_gpt(text):
-    response = CLIENT.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "system", "content": ROLE},
-            {"role": "user", "content": text}
-        ]
-    )
+    try:
+        response = CLIENT.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": ROLE},
+                {"role": "user", "content": text}
+            ]
+        )
+    except openai.BadRequestError:
+        return ""
 
     return response.choices[0].message.content
 
