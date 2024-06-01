@@ -159,6 +159,7 @@ def main():
 
     working_results_path = select_results(result_paths)
 
+    print()
     print(f"Using results {working_results_path}")
 
     results_data_path = working_results_path / "paraphrased_results.json"
@@ -175,11 +176,19 @@ def main():
     post_paraphrased_human = []
     post_paraphrased_machine = []
 
+    human_entries_skipped = 0
+    machine_entries_skipped = 0
+
     for i, (pre_paraphrased_percentage, post_paraphrased_percentage) in \
             enumerate(zip(results_data["original_detection"], results_data["paraphrased_detection"])):
         # Skip if there is no paraphrased text
         # Most likely an error occurred during paraphrasing
         if not results_data["paraphrased_text"][i]:
+            if results_data["is_ai"][i]:
+                machine_entries_skipped += 1
+            else:
+                human_entries_skipped += 1
+
             continue
 
         if results_data["is_ai"][i]:
@@ -198,6 +207,11 @@ def main():
     plot_as_box_plots(pre_paraphrased_data, post_paraphrased_data, plots_path)
     plot_as_histogram(pre_paraphrased_data, post_paraphrased_data, plots_path)
     plot_as_probability_density(pre_paraphrased_data, post_paraphrased_data, plots_path)
+
+    if human_entries_skipped > 0:
+        print(f"{human_entries_skipped} human entrie(s) had no paraphrased text")
+    if machine_entries_skipped > 0:
+        print(f"{machine_entries_skipped} machine entrie(s) had no paraphrased text")
 
 
 if __name__ == "__main__":
