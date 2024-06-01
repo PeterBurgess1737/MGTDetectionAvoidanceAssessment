@@ -177,6 +177,11 @@ def main():
 
     for i, (pre_paraphrased_percentage, post_paraphrased_percentage) in \
             enumerate(zip(results_data["original_detection"], results_data["paraphrased_detection"])):
+        # Skip if there is no paraphrased text
+        # Most likely an error occurred during paraphrasing
+        if not results_data["paraphrased_text"][i]:
+            continue
+
         if results_data["is_ai"][i]:
             pre_paraphrased_machine.append(pre_paraphrased_percentage)
             post_paraphrased_machine.append(post_paraphrased_percentage)
